@@ -1,4 +1,4 @@
-import {prop, cond, compose} from 'ramda';
+import {compose, cond, equals, prop} from 'ramda';
 
 import {SHAPES} from '../constants';
 
@@ -6,8 +6,8 @@ import {SHAPES} from '../constants';
 const round = num => Math.round(num * 10) / 10;
 
 /**
- * Функции возвращающие св-ва объекта эквивалент 
- * 
+ * Функции возвращающие св-ва объекта эквивалент
+ *
  * const propShape = obj => obj.shape
  **/
 const propShape = prop('shape');
@@ -23,7 +23,7 @@ const G = 9.8;
 
 const momentumFormula = ({mass, velocity}) => mass * velocity;
 
-const velocityFormula = height => Math.sqrt(2 * G * height); 
+const velocityFormula = height => Math.sqrt(2 * G * height);
 
 const massFormula = ({volume, density}) => volume * density;
 
@@ -35,51 +35,58 @@ const tetrahedronVolumeFormula = r => (Math.pow(r, 3) * Math.sqrt(2)) / 12;
 
 
 const shapeEqualsCube = compose(
-    () => {},
-    //
+    equals(SHAPES.CUBE),
+    propShape
 );
 
 const shapeEqualsSphere = compose(
-    () => {},
-    //
+    equals(SHAPES.CUBE),
+    propShape
 );
 const shapeEqualsTetrahedron = compose(
-    () => {},
-    //
+    equals(SHAPES.TETRAHEDRON),
+    propShape
 );
 
 const calcCubeVolume = compose(
-    () => {},
-    //
+    cubeVolumeFormula,
+    propSize
 );
 const calcSphereVolume = compose(
-    () => {},
-    //
+    sphereVolumeFormula,
+    propSize
 );
 const calcTetrahedronVolume = compose(
-    () => {},
-    //
+    tetrahedronVolumeFormula,
+    propSize
 );
 
 const calcVolume = cond([
-    [() => {}, () => {}],
-    [() => {}, () => {}]
-    //
+    [shapeEqualsCube, calcCubeVolume],
+    [shapeEqualsSphere, calcSphereVolume],
+    [shapeEqualsTetrahedron, calcTetrahedronVolume]
 ]);
 
 const calcMass = compose(
-    () => {},
-    //
+    massFormula,
+    (props) => ({
+        volume: calcVolume(props),
+        density: propDensity(props)
+    })
 );
 
 const calcVelocity = compose(
-    () => {},
-    //
+    velocityFormula,
+    propHeight
 );
 
 const computeMomentum = compose(
-    () => {},
-    //
+    round,
+    momentumFormula,
+    (props) => ({
+        velocity: calcVelocity(props),
+        mass: calcMass(props)
+    })
 );
 
 
